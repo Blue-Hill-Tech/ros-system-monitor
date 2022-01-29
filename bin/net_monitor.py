@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ############################################################################
 #    Copyright (C) 2009, Willow Garage, Inc.                               #
 #    Copyright (C) 2013 by Ralf Kaestner                                   #
@@ -29,12 +29,12 @@
 #    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS     #
 #    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE        #
 #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,  #
-#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
+#    INCIDENTAL, SPECIAL as eXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
 #    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;      #
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER      #
 #    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT    #
 #    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN     #
-#    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE       #
+#    ANY WAY OUT OF THE USE OF THIS SOFTWARE as eVEN IF ADVISED OF THE       #
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
@@ -107,7 +107,7 @@ class NetMonitor():
     self._net_capacity = rospy.get_param('~net_capacity', net_capacity)
     self._usage_timer = None
     self._usage_stat = DiagnosticStatus()
-    self._usage_stat.name = 'Network Usage (%s)' % diag_hostname
+    self._usage_stat.name = 'Network Usage'
     self._usage_stat.level = 1
     self._usage_stat.hardware_id = hostname
     self._usage_stat.message = 'No Data'
@@ -136,7 +136,7 @@ class NetMonitor():
         values.append(KeyValue(key = "\"ifstat -q -S 1 1\" Call Error",
           value = str(retcode)))
         return DiagnosticStatus.ERROR, net_dict[3], values
-      rows = stdout.split('\n')
+      rows = stdout.split(b'\n')
       data = rows[0].split()
       ifaces = []
       for i in range(0, len(data)):
@@ -186,7 +186,7 @@ class NetMonitor():
         (retcode, cmd_out) = get_sys_net_stat(ifaces[i], 'tx_errors')
         if retcode == 0:
           values.append(KeyValue(key = 'Tx Errors', value = cmd_out))
-    except Exception, e:
+    except Exception as e:
       rospy.logerr(traceback.format_exc())
       msg = 'Network Usage Check Error'
       values.append(KeyValue(key = msg, value = str(e)))
@@ -252,14 +252,14 @@ if __name__ == '__main__':
       'Network monitor is unable to initialize node. Master may not be running.'
     sys.exit(0)
   net_node = NetMonitor(hostname, options.diag_hostname)
-  rate = rospy.Rate(1.0)
+  rate = rospy.Rate(0.25)
   try:
     while not rospy.is_shutdown():
       rate.sleep()
       net_node.publish_stats()
   except KeyboardInterrupt:
     pass
-  except Exception, e:
+  except Exception as e:
     traceback.print_exc()
     rospy.logerr(traceback.format_exc())
   net_node.cancel_timers()

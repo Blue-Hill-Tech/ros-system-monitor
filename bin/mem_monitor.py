@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ############################################################################
 #    Copyright (C) 2009, Willow Garage, Inc.                               #
 #    Copyright (C) 2013 by Ralf Kaestner                                   #
@@ -29,12 +29,12 @@
 #    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS     #
 #    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE        #
 #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,  #
-#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
+#    INCIDENTAL, SPECIAL as eXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
 #    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;      #
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER      #
 #    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT    #
 #    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN     #
-#    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE       #
+#    ANY WAY OUT OF THE USE OF THIS SOFTWARE as eVEN IF ADVISED OF THE       #
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
@@ -96,7 +96,7 @@ class MemMonitor():
         self._usage_timer = None
         
         self._usage_stat = DiagnosticStatus()
-        self._usage_stat.name = 'Memory Usage (%s)' % diag_hostname
+        self._usage_stat.name = 'Memory Usage'
         self._usage_stat.level = 1
         self._usage_stat.hardware_id = hostname
         self._usage_stat.message = 'No Data'
@@ -132,7 +132,7 @@ class MemMonitor():
                 values.append(KeyValue(key = "\"free -tm\" Call Error", value = str(retcode)))
                 return DiagnosticStatus.ERROR, values
 
-            rows = stdout.split('\n')
+            rows = stdout.split(b'\n')
             data = rows[1].split()
             total_mem_physical = data[1]
             used_mem_physical = data[2]
@@ -156,18 +156,18 @@ class MemMonitor():
                 level = DiagnosticStatus.ERROR
 
             values.append(KeyValue(key = 'Memory Status', value = mem_dict[level]))
-            values.append(KeyValue(key = 'Total Memory (Physical)', value = total_mem_physical+"M"))
-            values.append(KeyValue(key = 'Used Memory (Physical)', value = used_mem_physical+"M"))
-            values.append(KeyValue(key = 'Free Memory (Physical)', value = free_mem_physical+"M"))
-            values.append(KeyValue(key = 'Total Memory (Swap)', value = total_mem_swap+"M"))
-            values.append(KeyValue(key = 'Used Memory (Swap)', value = used_mem_swap+"M"))
-            values.append(KeyValue(key = 'Free Memory (Swap)', value = free_mem_swap+"M"))
-            values.append(KeyValue(key = 'Total Memory', value = total_mem+"M"))
-            values.append(KeyValue(key = 'Used Memory', value = used_mem+"M"))
-            values.append(KeyValue(key = 'Free Memory', value = free_mem+"M"))
+            values.append(KeyValue(key = 'Total Memory (Physical)', value = str(total_mem_physical)+"M"))
+            values.append(KeyValue(key = 'Used Memory (Physical)', value = str(used_mem_physical)+"M"))
+            values.append(KeyValue(key = 'Free Memory (Physical)', value = str(free_mem_physical)+"M"))
+            values.append(KeyValue(key = 'Total Memory (Swap)', value = str(total_mem_swap)+"M"))
+            values.append(KeyValue(key = 'Used Memory (Swap)', value = str(used_mem_swap)+"M"))
+            values.append(KeyValue(key = 'Free Memory (Swap)', value = str(free_mem_swap)+"M"))
+            values.append(KeyValue(key = 'Total Memory', value = str(total_mem)+"M"))
+            values.append(KeyValue(key = 'Used Memory', value = str(used_mem)+"M"))
+            values.append(KeyValue(key = 'Free Memory', value = str(free_mem)+"M"))
 
             msg = mem_dict[level]
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             msg = 'Memory Usage Check Error'
             values.append(KeyValue(key = msg, value = str(e)))
@@ -246,14 +246,14 @@ if __name__ == '__main__':
 
     mem_node = MemMonitor(hostname, options.diag_hostname)
 
-    rate = rospy.Rate(1.0)
+    rate = rospy.Rate(0.25)
     try:
         while not rospy.is_shutdown():
             rate.sleep()
             mem_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
         rospy.logerr(traceback.format_exc())
 

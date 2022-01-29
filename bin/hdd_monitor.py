@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ############################################################################
 #    Copyright (C) 2009, Willow Garage, Inc.                               #
 #    Copyright (C) 2013 by Ralf Kaestner                                   #
@@ -29,12 +29,12 @@
 #    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS     #
 #    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE        #
 #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,  #
-#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
+#    INCIDENTAL, SPECIAL as eXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
 #    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;      #
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER      #
 #    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT    #
 #    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN     #
-#    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE       #
+#    ANY WAY OUT OF THE USE OF THIS SOFTWARE as eVEN IF ADVISED OF THE       #
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
@@ -77,7 +77,7 @@ def get_hddtemp_data(hostname = 'localhost', port = 7634):
             sock_data = sock_data + newdat
         hdd_sock.close()
 
-        sock_vals = sock_data.split('|')
+        sock_vals = sock_data.split(b'|')
 
         # Format of output looks like ' | DRIVE | MAKE | TEMP | ' 
         idx = 0
@@ -164,7 +164,7 @@ class hdd_monitor():
         self._usage_stat = DiagnosticStatus()
         self._usage_stat.level = DiagnosticStatus.ERROR
         self._usage_stat.hardware_id = hostname
-        self._usage_stat.name = 'HDD Usage (%s)' % diag_hostname
+        self._usage_stat.name = 'HDD Usage'
         self._usage_stat.values = [ KeyValue(key = 'Update Status', value = 'No Data' ),
                                     KeyValue(key = 'Time Since Last Update', value = 'N/A') ]
         self.check_disk_usage()
@@ -195,10 +195,10 @@ class hdd_monitor():
         for index in range(0, len(drives)):
             temp = temps[index]
             
-            if not unicode(temp).isnumeric() and drives[index] not in REMOVABLE:
+            if not str(temp).isnumeric() and drives[index] not in REMOVABLE:
                 temp_level = DiagnosticStatus.ERROR
                 temp_ok = False
-            elif not unicode(temp).isnumeric() and drives[index] in REMOVABLE:
+            elif not str(temp).isnumeric() and drives[index] in REMOVABLE:
                 temp_level = DiagnosticStatus.OK
                 temp = "Removed"
             else:
@@ -255,14 +255,14 @@ class hdd_monitor():
 
             if (retcode == 0 or retcode == 1):
                 diag_vals.append(KeyValue(key = 'Disk Space Reading', value = 'OK'))
-                rows = stdout.split('\n')
+                rows = stdout.split(b'\n')
                 del rows[0]
                 row_count = 0
                 
                 for row in rows:
                     if len(row.split()) < 2:
                         continue
-                    if unicode(row.split()[0]) == "none":
+                    if str(row.split()[0]) == "none":
                         continue
 
                     row_count += 1
@@ -272,7 +272,7 @@ class hdd_monitor():
                     size = row.split()[1]
                     mount_pt = row.split()[-1]
 
-                    hdd_usage = float(g_use.replace("%", ""))*1e-2
+                    hdd_usage = float(g_use.replace(b"%", b""))*1e-2
                     if (hdd_usage < self._hdd_level_warn):
                         level = DiagnosticStatus.OK
                     elif (hdd_usage < self._hdd_level_error):
@@ -281,17 +281,17 @@ class hdd_monitor():
                         level = DiagnosticStatus.ERROR
 
                     diag_vals.append(KeyValue(
-                            key = 'Disk %d Name' % row_count, value = name))
+                            key = 'Disk %d Name' % row_count, value = str(name)))
                     diag_vals.append(KeyValue(
-                            key = 'Disk %d Size' % row_count, value = size))
+                            key = 'Disk %d Size' % row_count, value = str(size)))
                     diag_vals.append(KeyValue(
-                            key = 'Disk %d Available' % row_count, value = g_available))
+                            key = 'Disk %d Available' % row_count, value = str(g_available)))
                     diag_vals.append(KeyValue(
-                            key = 'Disk %d Use' % row_count, value = g_use))
+                            key = 'Disk %d Use' % row_count, value = str(g_use)))
                     diag_vals.append(KeyValue(
                             key = 'Disk %d Status' % row_count, value = stat_dict[level]))
                     diag_vals.append(KeyValue(
-                            key = 'Disk %d Mount Point' % row_count, value = mount_pt))
+                            key = 'Disk %d Mount Point' % row_count, value = str(mount_pt)))
 
                     diag_level = max(diag_level, level)
                     diag_message = usage_dict[diag_level]
@@ -361,11 +361,11 @@ if __name__ == '__main__':
     try:
         rospy.init_node('hdd_monitor_%s' % hostname)
     except rospy.exceptions.ROSInitException:
-        print 'HDD monitor is unable to initialize node. Master may not be running.'
+        print('HDD monitor is unable to initialize node. Master may not be running.')
         sys.exit(0)
         
     hdd_monitor = hdd_monitor(hostname, options.diag_hostname)
-    rate = rospy.Rate(1.0)
+    rate = rospy.Rate(0.25)
 
     try:
         while not rospy.is_shutdown():
@@ -373,7 +373,7 @@ if __name__ == '__main__':
             hdd_monitor.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
 
     hdd_monitor.cancel_timers()

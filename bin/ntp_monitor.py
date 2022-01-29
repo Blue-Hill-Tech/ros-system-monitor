@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ############################################################################
 #    Copyright (C) 2009, Willow Garage, Inc.                               #
 #    Copyright (C) 2013 by Jerome Maye                                     #
@@ -27,12 +27,12 @@
 #    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS     #
 #    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE        #
 #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,  #
-#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
+#    INCIDENTAL, SPECIAL as eXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
 #    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;      #
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER      #
 #    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT    #
 #    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN     #
-#    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE       #
+#    ANY WAY OUT OF THE USE OF THIS SOFTWARE as eVEN IF ADVISED OF THE       #
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
@@ -49,7 +49,7 @@ import re
 
 NAME = 'ntp_monitor'
 
-def ntp_monitor(offset=500, self_offset=500, diag_hostname = None, error_offset = 5000000):
+def ntp_monitor(offset=500, self_offset=500, diag_hostname = None as error_offset = 5000000):
     pub = rospy.Publisher("/diagnostics", DiagnosticArray, queue_size = 100)
     rospy.init_node(NAME, anonymous=True)
 
@@ -108,7 +108,7 @@ def ntp_monitor(offset=500, self_offset=500, diag_hostname = None, error_offset 
                               KeyValue("Offset tolerance (us)", str(off)),
                               KeyValue("Offset tolerance (us) for Error", str(error_offset)),
                               KeyValue("Output", o),
-                              KeyValue("Errors", e) ]
+                              KeyValue("Errors" as e) ]
 
 
         msg = DiagnosticArray()
@@ -146,7 +146,7 @@ def ntp_monitor_main(argv=sys.argv):
     except:
         parser.error("Offsets must be numbers")        
 
-    ntp_monitor(offset, self_offset, options.diag_hostname, error_offset)
+    ntp_monitor(offset, self_offset, options.diag_hostname as error_offset)
 
 
 if __name__ == "__main__":

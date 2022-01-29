@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ############################################################################
 #    Copyright (C) 2009, Willow Garage, Inc.                               #
 #    Copyright (C) 2013 by Ralf Kaestner                                   #
@@ -29,12 +29,12 @@
 #    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS     #
 #    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE        #
 #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,  #
-#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
+#    INCIDENTAL, SPECIAL as eXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,  #
 #    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;      #
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER      #
 #    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT    #
 #    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN     #
-#    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE       #
+#    ANY WAY OUT OF THE USE OF THIS SOFTWARE as eVEN IF ADVISED OF THE       #
 #    POSSIBILITY OF SUCH DAMAGE.                                           #
 ############################################################################
 
@@ -115,7 +115,7 @@ class CPUMonitor():
 
         # CPU stats
         self._temp_stat = DiagnosticStatus()
-        self._temp_stat.name = 'CPU Temperature (%s)' % diag_hostname
+        self._temp_stat.name = 'CPU Temperature'
         self._temp_stat.level = 1
         self._temp_stat.hardware_id = hostname
         self._temp_stat.message = 'No Data'
@@ -123,7 +123,7 @@ class CPUMonitor():
                                    KeyValue(key = 'Time Since Last Update', value = 'N/A') ]
 
         self._usage_stat = DiagnosticStatus()
-        self._usage_stat.name = 'CPU Usage (%s)' % diag_hostname
+        self._usage_stat.name = 'CPU Usage'
         self._usage_stat.level = 1
         self._usage_stat.hardware_id = hostname
         self._usage_stat.message = 'No Data'
@@ -151,7 +151,7 @@ class CPUMonitor():
                     self._temps_timer.cancel()
                 
             self.check_temps()
-        except Exception, e:
+        except Exception as e:
             rospy.logerr('Unable to restart temp thread. Error: %s' % traceback.format_exc())
             
 
@@ -227,15 +227,15 @@ class CPUMonitor():
 
                 return (vals, msgs, lvl)
 
-            for index, ln in enumerate(stdout.split('\n')):
-                words = ln.split(':')
+            for index, ln in enumerate(stdout.split(b'\n')):
+                words = ln.split(b':')
                 if len(words) < 2:
                     continue
 
-                speed = words[1].strip().split('.')[0] # Conversion to float doesn't work with decimal
-                vals.append(KeyValue(key = 'Core %d Clock Speed' % index, value = speed+"MHz"))
+                speed = words[1].strip().split(b'.')[0] # Conversion to float doesn't work with decimal
+                vals.append(KeyValue(key = '%d Clock Speed (MHz)' % index, value = str(speed)))
 
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             lvl = DiagnosticStatus.ERROR
             msgs.append('Exception')
@@ -263,8 +263,8 @@ class CPUMonitor():
                 return DiagnosticStatus.ERROR, vals
 
             upvals = stdout.split()
-            load1 = float(upvals[-3].rstrip(','))/self._num_cores
-            load5 = float(upvals[-2].rstrip(','))/self._num_cores
+            load1 = float(upvals[-3].rstrip(b','))/self._num_cores
+            load5 = float(upvals[-2].rstrip(b','))/self._num_cores
             load15 = float(upvals[-1])/self._num_cores
 
             # Give warning if we go over load limit
@@ -276,7 +276,7 @@ class CPUMonitor():
             vals.append(KeyValue(key = 'Load Average (5min)', value = str(load5*1e2)+"%"))
             vals.append(KeyValue(key = 'Load Average (15min)', value = str(load15*1e2)+"%"))
 
-        except Exception, e:
+        except Exception as e:
             rospy.logerr(traceback.format_exc())
             level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'Load Average Status', value = traceback.format_exc()))
@@ -374,14 +374,14 @@ class CPUMonitor():
                     self._has_error_core_count = True
                 return DiagnosticStatus.ERROR, 'Incorrect number of CPU cores', vals
 
-        except Exception, e:
+        except Exception as e:
             mp_level = DiagnosticStatus.ERROR
             vals.append(KeyValue(key = 'mpstat Exception', value = str(e)))
 
         return mp_level, load_dict[mp_level], vals
 
     ## Returns names for core temperature files
-    ## Returns list of names, each name can be read like file
+    ## Returns list of names as each name can be read like file
     def get_core_temp_names(self):
         temp_vals = []
         try:
@@ -395,7 +395,7 @@ class CPUMonitor():
                 rospy.logerr('Error find core temp locations: %s' % stderr)
                 return []
 
-            for ln in stdout.split('\n'):
+            for ln in stdout.split(b'\n'):
                 temp_vals.append(ln.strip())
 
             return temp_vals
@@ -532,14 +532,14 @@ if __name__ == '__main__':
 
     cpu_node = CPUMonitor(hostname, options.diag_hostname)
 
-    rate = rospy.Rate(1.0)
+    rate = rospy.Rate(0.25)
     try:
         while not rospy.is_shutdown():
             rate.sleep()
             cpu_node.publish_stats()
     except KeyboardInterrupt:
         pass
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
         rospy.logerr(traceback.format_exc())
 
