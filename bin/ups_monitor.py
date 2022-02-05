@@ -28,7 +28,7 @@ def ups_monitor():
         msg.header.stamp = rospy.get_rostime()
         msg.status = [bat_stat]
         pub.publish(msg)
-        time.sleep(1)
+        time.sleep(5)
 
 def ups_monitor_main():
     ups_monitor()
