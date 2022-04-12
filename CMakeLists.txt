@@ -11,6 +11,7 @@ install(PROGRAMS
   bin/mem_monitor.py
   bin/net_monitor.py
   bin/ntp_monitor.py
+  bin/ups_monitor.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch config
